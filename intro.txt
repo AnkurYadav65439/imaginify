@@ -1,0 +1,33 @@
+//tech stack: next-14, typescript, mongodb, stripe, clerk, cloudinary ai, shadcn, tailwind
+
+//next app
+  default options including src-directory: no
+
+//some font and seo changes in layout.tsx 
+
+//copy tailwind.config.ts and globals.css and download public folder from github
+
+//create dorganisational folder structure in app
+ and also placed main 'page.tsx' inside (root) to access their layout instead(which is done automatically refer: discord-clone-intro)
+
+//setup clerk and its env
+  NOTE: home page is bceomes protected automaticaly after clerk setup.
+
+//customization with clerk -> customization -> branding
+  edit clerkprovider with appearances variables for colors etc
+  
+  
+//mongoDB setup 
+  IMP: NO express is server is used as nextjs is serverless state means there is no persistent connection to server 
+    it connectes to server for a request and then disconnects. Provides better scallability and reliability.
+    But to optimize it we are going to chached the mongooose connection.
+
+    lib->database->mongoose.ts
+
+//lib->actions: for api's, in nextjs its server actions bascially by writing "use server" at top and then your functions
+
+//copied utils(lib) from gith
+
+//Saving user to db after succesfully created by clerk, basically syncing the data from clerk user to user in db by using webhooks
+  //webhooks: basically when something happens(once user is signup with clerk), a event is triggered (with payload data) and sends data over Event processing directly to db
+  //But we need to deploy to expose our endpoind 
