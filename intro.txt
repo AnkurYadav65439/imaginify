@@ -31,3 +31,9 @@
 //Saving user to db after succesfully created by clerk, basically syncing the data from clerk user to user in db by using webhooks
   //webhooks: basically when something happens(once user is signup with clerk), a event is triggered (with payload data) and sends data over Event processing directly to db
   //But we need to deploy to expose our endpoind 
+
+//after deloyment
+  clerk->webhooks->add endpoint(deployed url with /api/webhooks/clerk) where your route.ts file is present (bascially your backend endpoint or api to CRUD based on events)
+  and seect events i.e user , add signing secret to env 
+  route.ts file provided by clerk (or gith modified should be used)
+  update middleware, public route to /api/webhooks/clerk so that clerk can ping it.
