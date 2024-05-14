@@ -1,6 +1,6 @@
-import mongoose, { Mongoose} from "mongoose";
+import mongoose, { Mongoose } from 'mongoose';
 
-const MONGODB_URL = process.env.MONGODB_URL;
+const MONGODB_URL = process.env.MONGODB_URL
 
 //for typescript 
 interface MongooseConnection {
@@ -8,20 +8,23 @@ interface MongooseConnection {
     promise: Promise<Mongoose> | null;
 }
 
-let cached: MongooseConnection = (global as any).mongoose
+let cached: MongooseConnection = (global as any).mongoose   //for ts
 
-if(!cached) {
+if (!cached) {
     cached = (global as any).mongoose = {
         conn: null, promise: null
     }
 }
 
 export const connectToDatabase = async () => {
-    if(cached.conn) {
+    console.log("connectToDatabse mongo url , ", MONGODB_URL)
+
+    if (cached.conn) {
+        console.log("DB already connected!")
         return cached.conn;
     }
 
-    if(!MONGODB_URL){
+    if (!MONGODB_URL) {
         throw new Error("Missing MONGODB_URL");
     }
 

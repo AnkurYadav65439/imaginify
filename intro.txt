@@ -1,5 +1,9 @@
 //tech stack: next-14, typescript, mongodb, stripe, clerk, cloudinary ai, shadcn, tailwind
 
+//CONCEPTS : server actions: like user.action.ts : instead of proper formating as an api  and calling with proper formating
+    here we are calling the functions(like getUserById) directly from frontend.
+    Also call them with api(like in /api/webhooks/clerk) api endpoint 
+
 //next app
   default options including src-directory: no
 
@@ -8,19 +12,19 @@
 //copy tailwind.config.ts and globals.css and download public folder from github
 
 //create dorganisational folder structure in app
- and also placed main 'page.tsx' inside (root) to access their layout instead(which is done automatically refer: discord-clone-intro)
+ and also placed main 'page.tsx' inside (root) to access their layout instead(which is done automatically)
 
 //setup clerk and its env
-  NOTE: home page is bceomes protected automaticaly after clerk setup.
+  NOTE: home page bceomes protected automaticaly after clerk setup. (due to clerkProvider wrapping whole app through main layout)
 
 //customization with clerk -> customization -> branding
   edit clerkprovider with appearances variables for colors etc
   
   
 //mongoDB setup 
-  IMP: NO express is server is used as nextjs is serverless state means there is no persistent connection to server 
+  IMP: NO express server is used as nextjs is serverless state means there is no persistent connection to server 
     it connectes to server for a request and then disconnects. Provides better scallability and reliability.
-    But to optimize it we are going to chached the mongooose connection.
+    But to optimize it we are going to chached the mongooose connection.(replaced with mysterymessage function github)
 
     lib->database->mongoose.ts
 
@@ -34,6 +38,20 @@
 
 //after deloyment
   clerk->webhooks->add endpoint(deployed url with /api/webhooks/clerk) where your route.ts file is present (bascially your backend endpoint or api to CRUD based on events)
-  and seect events i.e user , add signing secret to env 
+  and select events i.e user , add signing secret to env 
   route.ts file provided by clerk (or gith modified should be used)
   update middleware, public route to /api/webhooks/clerk so that clerk can ping it.
+
+needed svix package for ablove
+
+//After COMPLEX form: setup cloudinary 
+  getting started-> npm i next-cloundinary -> env setup with keys and secret and cloud name
+  Add new upload preset(unsigned):
+  setting->upload->enable unsigned media(if u didn't exceeded limit till now) -> add upload preset -> name, unsigned, folder name -> media analysis ai -> tick google auto tagging, auto tagging to 0.5(slider) -> save
+  add add-ons-> clouidnary bg removal ai, google auto tagging(subscribe free plan: limit credit 15, 50/month)
+  COMPLETED SETUP
+
+//Now can use cloudinary image  upload widget , image component to upload and optimize view of image
+  clduploadwidget with nextjs(refer site) : created MediaUploader.tsx
+  npm i next-cloudinary already done
+  
