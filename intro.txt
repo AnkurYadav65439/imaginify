@@ -3,6 +3,11 @@
 //clerk : 
   save user to db as well (by using webhooks(deploued neccesssory))
   To get user, get {userId} (bascially clerkId) from { auth } from clerk/nextjs, and then make db request with that id to get user(by your created server actions or api) 
+  On clerk provider, all routes gets private and need to login 
+    but to make home page public, use middleware to define public routes
+      As usual, layout also be used for routing protection
+  sgn in /sign up doesn't matter with authentication, if user already present still can sign up and if user not there, still can sign in but only  in direct method(google, github etc),not manually
+  It will not save user in db(maybe not ping through webhook) if same email is present, though it login the user (i.e. email is already present with google auth and new user came from gihub account which also have same email), but then overwrite like username and now both are same account eight login from gi or google(if email is same)
 
 //CONCEPTS : server actions: like user.action.ts : instead of proper formating as an api  and calling with proper formating
     here we are calling the functions(like getUserById) directly from frontend.
