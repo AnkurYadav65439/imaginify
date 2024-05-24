@@ -27,7 +27,7 @@ const MediaUploader = ({ onValueChange, setImage, image, publicId, type }: Media
             secureURL: result?.info?.secure_url
         }))
 
-        onValueChange(result?.info?.public_id)
+        onValueChange(result?.info?.public_id)  //most imp
 
         toast({
             title: "Image uploaded successfully",
@@ -56,13 +56,14 @@ const MediaUploader = ({ onValueChange, setImage, image, publicId, type }: Media
             onSuccess={onUploadSuccessHandler}
             onError={onUploadErrorHandler}
         >
+            {/* open from cloudinary to open the uploadwidget modal */}
             {({ open }) => (
                 <div className="flex flex-col gap-4">
                     <h3 className='h3-bold text-dark-600'>Original</h3>
 
                     {publicId ? (
                         <>
-                            <div className="cursor-ponter overflow-hidden">
+                            <div className="cursor-pointer overflow-hidden">
                                 <CldImage
                                     width={getImageSize(type, image, "width")}
                                     height={getImageSize(type, image, "height")}

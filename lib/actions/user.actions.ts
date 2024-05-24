@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import User from "../database/models/user.model";
 import { connectToDatabase } from "../database/mongoose";
 import { handleError } from "../utils";
+import Image from "../database/models/image.model";
 
 // CREATE
 export async function createUser(user: CreateUserParams) {

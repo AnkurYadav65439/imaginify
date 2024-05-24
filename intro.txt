@@ -1,8 +1,23 @@
 //tech stack: next-14, typescript, mongodb, stripe, clerk, cloudinary ai, shadcn, tailwind
 
+//clerk : 
+  save user to db as well (by using webhooks(deploued neccesssory))
+  To get user, get {userId} (bascially clerkId) from { auth } from clerk/nextjs, and then make db request with that id to get user(by your created server actions or api) 
+
 //CONCEPTS : server actions: like user.action.ts : instead of proper formating as an api  and calling with proper formating
     here we are calling the functions(like getUserById) directly from frontend.
     Also call them with api(like in /api/webhooks/clerk) api endpoint 
+
+//todo
+   //transformationPage: fill : apply tranf is not disable even when image is not uploaded because selecting size lead to setNewTransformation & even setImage property.
+
+//NEW : 
+  for typescript , to set type of setState function, i.e.: setImage: React.Dispatch<any>
+    for form attributes type, refer customField compn. 
+  Image tag nextjs: For using external src link in Image tag, setup next config with that url hostname etc
+
+//COMPLEX: 
+  transformationForm page 
 
 //next app
   default options including src-directory: no
@@ -45,13 +60,48 @@
 needed svix package for ablove
 
 //After COMPLEX form: setup cloudinary 
-  getting started-> npm i next-cloundinary -> env setup with keys and secret and cloud name
+  getting started-> npm i next-cloundinary (not just cloudinary) -> env setup with keys and secret and cloud name 
   Add new upload preset(unsigned):
-  setting->upload->enable unsigned media(if u didn't exceeded limit till now) -> add upload preset -> name, unsigned, folder name -> media analysis ai -> tick google auto tagging, auto tagging to 0.5(slider) -> save
-  add add-ons-> clouidnary bg removal ai, google auto tagging(subscribe free plan: limit credit 15, 50/month)
+   setting->upload->enable unsigned media(if u didn't exceeded limit till now) -> add upload preset -> name, unsigned, folder name -> media analysis ai -> tick google auto tagging, auto tagging to 0.5(slider) -> save
+    explore->add add-ons-> clouidnary bg removal ai, google auto tagging: for descriptive search(subscribe free plan: limit credit 15, 50/month)
   COMPLETED SETUP
 
-//Now can use cloudinary image  upload widget , image component to upload and optimize view of image
-  clduploadwidget with nextjs(refer site) : created MediaUploader.tsx
+//Now can use cloudinary image upload widget, and clgImage(for how u want to view the image uploaded by widget)(by next cloudinary) , image component to upload and optimize view of image
+  clduploadwidget with nextjs(refer site) : created MediaUploader.tsx using this 
   npm i next-cloudinary already done
+  IMP: used as wrapped inside our form, so get values from it like other form values
+
+//IMP: publicId(public_id is cloudinary notation) is the actual src of trasnofrmed image 
+  you get result as result.info.public_id, secure_url (actual image that is uploaded), etc
   
+
+//In getAllImages api to show images collections on home page according to query
+  used cloudinary config (npm i cloudinary) to fetch all resources on coudinary imaginify folder
+  and then then fetch all data from our db matching those resource ids (public_ids)
+
+//TODO By own
+//cloudinary search of files/images (with exact title what you have given (for your db))
+  as cloudinary search api first search on its own folder(with its ai search feature) which have images with random names(not exactly what you have given which gets saved in our database )
+  after getting their public id only then we searched in our db with those id's
+  so we are getting those files with given 'title' even after searching with that exact title
+
+
+complx
+//Here  the flow:
+  for add transformation:
+    form gets loaded
+    upload image to mediaUploader compon. (uses cldUploadWidget) and set Form field value with onchange and setImage(publicid, secururl, h, w) state so that formt re renders and media uploader re loads with public id 
+      and this time, image got showed up because of public id (with cldImage)
+    Tranformed image is still not active beacuse of 'transformConfig' else it has publicId
+    when click 'apply', tramsformationConfig gets set and now TransformImage is active and shows skimmer untill realm transfomed image gets
+     but still orignal image is fetched with PublicId which gets sets on uploaded image??
+    Means publicid of that image contain both original then transformed image
+
+//when you download image , 
+  transformation url link image is downloaded actually
+  publicId mapped to tansformationUrl as we used getCldImageUrl using publicId while submitting or save image.
+  same getCldImageurl used when downloading image
+
+//and when getting original image on update 
+  cldImage using only publicId and fetch original image only.
+  intrstng

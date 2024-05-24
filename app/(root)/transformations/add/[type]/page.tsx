@@ -8,7 +8,7 @@ import React from 'react'
 
 const AddTransformationTypePage = async ({ params: { type } }: SearchParamProps) => {
     const transformation = transformationTypes[type];
-    const { userId } = auth();
+    const { userId } = auth();   //clerkId
 
     if (!userId) {
         redirect('/sign-in');

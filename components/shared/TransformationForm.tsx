@@ -1,19 +1,17 @@
 "use client"
-import React, { useState, useTransition } from 'react'
+import React, { useEffect, useState, useTransition } from 'react'
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { aspectRatioOptions, defaultValues, transformationTypes } from '@/constants'
+import { aspectRatioOptions, creditFee, defaultValues, transformationTypes } from '@/constants'
 import { CustomField } from './CustomField'
 import {
     Select,
     SelectContent,
-    SelectGroup,
     SelectItem,
-    SelectLabel,
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
@@ -22,8 +20,9 @@ import MediaUploader from './MediaUploader'
 import TransformedImage from './TransformedImage'
 import { updateCredits } from '@/lib/actions/user.actions'
 import { getCldImageUrl } from 'next-cloudinary'
-import { addImage, updateImage } from '@/lib/actions/image.action'
 import { useRouter } from 'next/navigation'
+import { addImage, updateImage } from '@/lib/actions/image.actions'
+import { InsufficientCreditsModal } from './InsufficientCreditsModal'
 
 export const formSchema = z.object({
     title: z.string(),
@@ -35,14 +34,19 @@ export const formSchema = z.object({
 
 const TransformationForm = ({ action, data = null, userId, type, creditBalance, config = null }: TransformationFormProps) => {
 
+    //contains {} inlcude type, title, config of a particular transf. type
     const transformationType = transformationTypes[type];
 
-    const [image, setImage] = useState(data);
+    const [image, setImage] = useState(data);   //all info about the image
+    const [transformationConfig, setTransformationCongif] = useState(config);
+    //actually have combined of it(from props only) with newTransformation(just below)
+
     const [newTransformation, setNewTransformation] = useState<Transformations | null>(null);
+    //informat. about transform. required  by user, or just assist to transformationConfig on apply transf.
+
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isTransforming, setIsTransforming] = useState(false);
-    const [transformationConfig, setTransformationCongif] = useState(config);
-    const [isPending, startTransition] = useTransition();
+    const [isPending, startTransition] = useTransition();   //let update state without blocking ui
 
     const router = useRouter();
 
@@ -65,7 +69,7 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
         setIsSubmitting(true);
 
         if (data || image) {
-            const transformationUrl = getCldImageUrl({
+            const transformationURL = getCldImageUrl({
                 width: image?.width,
                 height: image?.height,
                 src: image?.publicId,
@@ -80,7 +84,7 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
                 height: image?.height,
                 config: transformationConfig,
                 secureURL: image?.secureURL,
-                transformationURL: transformationUrl,
+                transformationURL: transformationURL,
                 aspectRatio: values.aspectRatio,
                 prompt: values.prompt,
                 color: values.color
@@ -88,14 +92,12 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
 
             if (action === 'Add') {
                 try {
-                    console.log("just enter addImage call , imageDta is ", imageData)
                     const newImage = await addImage({
                         image: imageData,
                         userId,
                         path: '/'
                     })
 
-                    console.log("just after  addImage call");
                     if (newImage) {
                         form.reset();
                         setImage(data);
@@ -139,8 +141,8 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
             height: imageSize.height
         }))
 
-        setNewTransformation(transformationType.config);
-        return onChangeField(value);
+        setNewTransformation(transformationType.config);    //.congif is {} with necces. info like prompt ,to, restore, removeBackground
+        return onChangeField(value);  //??
     }
 
     const onInputChangeHandler = (fieldName: string, value: string, type: string, onChangeField: (value: string) => void) => {
@@ -152,12 +154,12 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
                     [fieldName === 'prompt' ? 'prompt' : 'to']: value
                 }
             }))
-        }, 1000);
+        }, 1000)();
 
-        return onChangeField(value);
+        return onChangeField(value);    //??
     }
 
-    //TODO: update credit fee to something else(current -1)
+    //TODO: update credit fee to something else(current -1) (trigger on apply transformation)
     const onTransformHandler = async () => {
         setIsTransforming(true);
 
@@ -167,13 +169,22 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
         setNewTransformation(null);
 
         startTransition(async () => {
-            await updateCredits(userId, -1);
+            await updateCredits(userId, creditFee);
         })
     }
+
+    useEffect(() => {
+        //as no extra options required by user to apply these transformations
+        if (image && (type === "restore" || type === "removeBackground")) {
+            console.log("useffect for restore and remove", transformationType.config)
+            setNewTransformation(transformationType.config);
+        }
+    }, [image, type, transformationType.config]);
 
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                {creditBalance < Math.abs(creditFee) && <InsufficientCreditsModal />}
                 <CustomField
                     control={form.control}
                     name="title"
@@ -189,7 +200,7 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
                         formLabel="Aspect Ratio"
                         className='w-full'
                         render={({ field }) =>
-                            <Select onValueChange={(value) => onSelectFieldHandler(value, field.onChange)}>
+                            <Select onValueChange={(value) => onSelectFieldHandler(value, field.onChange)} value={field.value}>
                                 <SelectTrigger className="select-field">
                                     <SelectValue placeholder="Select size" />
                                 </SelectTrigger>
@@ -250,6 +261,7 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
                     </div>
                 )}
 
+                {/* contains cldUploadWidget by cloudinary (inside MediaUploader comp.) */}
                 <div className="media-uploader-field">
                     <CustomField
                         control={form.control}
